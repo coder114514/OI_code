@@ -9,25 +9,31 @@ using namespace std;
 
 typedef long long ll;
 
+const ll INF=1LL<<62;
+
 int k,n;
-ll s[110];
-priority_queue<ll,vector<ll>,greater<ll>> q;
+ll s[110],h[100010];
+int last[110];
 
 int main(){
-//    freopen("humble.in","r",stdin);
-//    freopen("humble.out","w",stdout);
+    freopen("humble.in","r",stdin);
+    freopen("humble.out","w",stdout);
     cin>>k>>n;
-    for(int i=1;i<=k;i++)cin>>s[i],q.push(s[i]);
-    int nth=0,last=-1;
-    while(true){
-        ll x=q.top(); q.pop();
-        if(x==last)continue;
-        last=x;
-        if(++nth==n){
-            cout<<x<<endl;
-            return 0;
+    for(int i=1;i<=k;i++)cin>>s[i];
+    h[0]=1;
+    for(int iH=1;iH<=n;iH++){
+        ll next=INF;
+        for(int i=1;i<=k;i++){
+            for(int j=last[i];j<iH;j++){
+                if(s[i]*h[j]>h[iH-1]){
+                    last[i]=j;
+                    next=min(next,s[i]*h[j]);
+                    break;
+                }
+            }
         }
-        for(int i=1;i<=k;i++)q.push(x*s[i]);
+        h[iH]=next;
     }
+    cout<<h[n]<<endl;
     return 0;
 }
