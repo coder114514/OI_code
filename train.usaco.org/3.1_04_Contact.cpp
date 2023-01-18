@@ -10,72 +10,76 @@ using namespace std;
 int a,b,n;
 string seq;
 
-string pat;
+vector<pair<int,int>> res;
 
-typedef pair<int,string> pis;
+int cnt[8200];
 
-vector<pis> res;
+int pat2num(string p){
+    int start_idx=(1<<p.size())-2;
+    int x=0;
+    for(int i=0;i<p.size();i++){
+        x=x*2+p[i]-'0';
+    }
+    return start_idx+x;
+}
 
-bool cmp(const pis&a,const pis&b){
-    if(a.first==b.first&&a.second.size()==b.second.size()){
+string num2pat(int x){
+    int len=1;
+    while((1<<(len+1))-2<=x){
+        ++len;
+    }
+    x-=(1<<len)-2;
+    string p;
+    for(int i=0;i<len;i++){
+        p=(char)('0'+x%2)+p;
+        x/=2;
+    }
+    return p;
+}
+
+bool cmp(pair<int,int> a,pair<int,int> b){
+    if(a.first==b.first){
         return a.second<b.second;
-    }else if(a.first==b.first){
-        return a.second.size()<b.second.size();
-    }else{
+    }
+    else{
         return a.first>b.first;
     }
 }
 
-bool check(int pos,int len){
-    for(int i=pos;i<pos+len;i++){
-        if(seq[i]!=pat[i-pos]){
-            return false;
-        }
-    }
-    return true;
-}
-
-void count(int len){
-    int cnt=0;
-    for(int i=0;i<seq.size()-len+1;i++){
-        if(check(i,len)){
-            ++cnt;
-        }
-    }
-    if(cnt>0){
-        res.push_back(make_pair(cnt,pat.substr(0,len)));
-    }
-}
-
-void dfs(int len,int i){
-    if(i>=len){
-        count(len);
-        return;
-    }
-    pat[i]='0';
-    dfs(len,i+1);
-    pat[i]='1';
-    dfs(len,i+1);
-}
-
 int main(){
-//    freopen("contact.in","r",stdin);
-//    freopen("contact.out","w",stdout);
+    freopen("contact.in","r",stdin);
+    freopen("contact.out","w",stdout);
     scanf("%d%d%d",&a,&b,&n);
-    pat.resize(b);
     string s;
     while(cin>>s)seq+=s;
-    for(int len=a;len<=b&&len<=seq.size();len++){
-        dfs(len,0);
+    b=min(b,(int)seq.size());
+    if(a>b)return 0;
+    for(int i=a-1;i<seq.size();i++){
+        for(int len=a;len<=b;len++){
+            if(i>=len-1){
+                cnt[pat2num(seq.substr(i-len+1,len))]++;
+            }
+        }
+    }
+    for(int iPat=(1<<a)-2;iPat<(1<<(b+1))-2;++iPat){
+        if(cnt[iPat]){
+            res.push_back(make_pair(cnt[iPat],iPat));
+        }
     }
     int nOut=0;
     sort(res.begin(),res.end(),cmp);
     for(int i=0;i<res.size()&&nOut<n;i++){
-        cout<<res[i].first<<endl<<res[i].second;
+        cout<<res[i].first<<endl<<num2pat(res[i].second);
         ++nOut;
+        int num=0;
         while(i+1<res.size()&&res[i].first==res[i+1].first){
             ++i;
-            cout<<" "<<res[i].second;
+            ++num;
+            if(num%6==0){
+                cout<<endl<<num2pat(res[i].second);
+            }else{
+                cout<<" "<<num2pat(res[i].second);
+            }
         }
         cout<<endl;
     }
