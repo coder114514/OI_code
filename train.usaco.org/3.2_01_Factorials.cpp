@@ -37,16 +37,10 @@ int main(){
         x*=j;
         x%=10;
     }
-    if(n2>n5){
-        for(int i=1;i<=n2-n5;i++){
-            x*=2;
-            x%=10;
-        }
-    }else{
-        for(int i=1;i<=n5-n2;i++){
-            x*=5;
-            x%=10;
-        }
+    // there are always more 2s than 5s in a factorial
+    for(int i=1;i<=n2-n5;i++){
+        x*=2;
+        x%=10;
     }
     cout<<x<<endl;
     return 0;
