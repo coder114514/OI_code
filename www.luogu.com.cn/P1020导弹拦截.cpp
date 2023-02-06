@@ -17,14 +17,14 @@ namespace Sol1
     int f[N];
     void solve()
     {
-        //×î³¤ÉÏÉı 
+        //æœ€é•¿ä¸Šå‡ 
         memset(f,0x3f,sizeof f);
         for(int i=0;i<n;i++)
         {
             *lower_bound(f,f+n,a[i])=a[i];
         }
         int ans2=lower_bound(f,f+n,0x3f3f3f3f)-f;
-        //×î³¤²»Éı
+        //æœ€é•¿ä¸å‡
         reverse(a,a+n);
         memset(f,0x3f,sizeof f);
         for(int i=0;i<n;i++)
@@ -62,7 +62,7 @@ namespace Sol2BIT
     pii b[N];
     void solve()
     {
-        //×î³¤²»Éı 
+        //æœ€é•¿ä¸å‡ 
         for(int i=0;i<n;i++)
         {
             b[i].first=-a[i];
@@ -75,7 +75,7 @@ namespace Sol2BIT
             change(b[i].second,u+1);
         }
         printf("%d\n",query(n));
-        //×î³¤ÉÏÉı
+        //æœ€é•¿ä¸Šå‡
         for(int i=1;i<=n;i++)bit[i]=0;
         for(int i=0;i<n;i++)
         {
@@ -98,7 +98,7 @@ namespace Sol2MAP
     map<int,int> f;
     void solve()
     {
-        //×î³¤²»Éı
+        //æœ€é•¿ä¸å‡
         f.clear();
         f[-1e9]=0; 
         for(int i=0;i<n;i++)
@@ -113,7 +113,7 @@ namespace Sol2MAP
         }
 //        printf("%d %d\n",f.rbegin()->first,f.rbegin()->second);
         printf("%d\n",f.rbegin()->second);
-        //×î³¤ÉÏÉı
+        //æœ€é•¿ä¸Šå‡
         f.clear();
         f[-1e9]=0;
         for(int i=0;i<n;i++)
