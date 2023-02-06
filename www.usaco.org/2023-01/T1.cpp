@@ -57,7 +57,7 @@ void solve(){
         if(mp[c]==c)mp[c]=0;
         else if(mp[c])++ans;
     }
-    //¹ÂÁ¢µÄ»·ĞèÒªÒ»¸öÖĞ¼ä×Ö·û
+    //å­¤ç«‹çš„ç¯éœ€è¦ä¸€ä¸ªä¸­é—´å­—ç¬¦
     for(char c='a';c<='z';c++){
         if(!vis[c]){
             trace(c);
