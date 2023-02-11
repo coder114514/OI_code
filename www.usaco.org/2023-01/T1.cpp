@@ -36,10 +36,13 @@ void trace(char c){
     vis[c]=true;
 }
 
+bool vis_T[256];
+
 void solve(){
     memset(mp,0,sizeof mp);
     memset(vis,0,sizeof vis);
     memset(iCyc,0,sizeof iCyc);
+    memset(vis_T,0,sizeof vis_T);
     nCyc=0;
     for(int i=0;i<S.size();i++){
         if(!mp[S[i]])mp[S[i]]=T[i];
@@ -47,6 +50,17 @@ void solve(){
             cout<<-1<<endl;
             return;
         }
+    }
+    int nOccur=0;
+    for(int i=0;i<T.size();i++){
+        if(!vis_T[T[i]]){
+            ++nOccur;
+            vis_T[T[i]]=true;
+        }
+    }
+    if(nOccur==52&&S!=T){
+        cout<<-1<<endl;
+        return;
     }
     int ans=0;
     for(char c='a';c<='z';c++){
@@ -85,10 +99,6 @@ void solve(){
         }
         if(!valid)continue;
         ++nC;
-    }
-    if(nC>0&&ans==52){
-        cout<<-1<<endl;
-        return;
     }
     ans+=nC;
     cout<<ans<<endl;
