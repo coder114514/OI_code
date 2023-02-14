@@ -6,8 +6,11 @@ const int N=1510;
 int n,q,er[N],ed[N];
 string sp[N];
 
-int trace(int i,int j){
+int A[N][N];
+
+int trace(int i,int j,int v){
     while(i<=n&&j<=n){
+        A[i][j]+=v;
         if(sp[i][j]=='R')++j;
         else ++i;
     }
@@ -24,10 +27,28 @@ int main(){
         cin>>er[i];
     }
     for(int i=1;i<=n;i++)cin>>ed[i];
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            A[i][j] = 1;
+        }
+    }
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (sp[i][j] == 'D') {
+                A[i+1][j] += A[i][j];
+            }
+            else {
+                A[i][j+1] += A[i][j];
+            }
+        }
+    }
     int cost=0;
-    for(int i=1;i<=n;i++){
-        for(int j=1;j<=n;j++){
-            cost+=trace(i,j);
+    for (int i = 1; i <= n; i++) {
+        if (sp[i][n] == 'R') {
+            cost += A[i][n] * er[i];
+        }
+        if (sp[n][i] == 'D') {
+            cost += A[n][i] * ed[i];
         }
     }
     cout<<cost<<endl;
@@ -35,13 +56,15 @@ int main(){
     for(int iD=1;iD<=q;iD++){
         int i,j;
         cin>>i>>j;
-        if(sp[i][j]=='R')sp[i][j]='B';
-        else sp[i][j]='R';
-        cost=0;
-        for(int i=1;i<=n;i++){
-            for(int j=1;j<=n;j++){
-                cost+=trace(i,j);
-            }
+        if(sp[i][j]=='R'){
+            sp[i][j]='D';
+            cost-=A[i][j]*trace(i,j+1,-A[i][j]);
+            cost+=A[i][j]*trace(i+1,j,A[i][j]);
+        }
+        else {
+            sp[i][j]='R';
+            cost-=A[i][j]*trace(i+1,j,-A[i][j]);
+            cost+=A[i][j]*trace(i,j+1,A[i][j]);
         }
         cout<<cost<<endl;
     }
