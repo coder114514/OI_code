@@ -1,19 +1,27 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 
-const int N=1e5+10;
+const int N = 1e5+10;
 
-int n,a[N];
+int n, a[N];
 
-int main(){
-    cin>>n;
-    for(int i=0;i<n;i++)cin>>a[i];
-    if(n==2&&a[0]==2&&a[1]==4){
-        cout<<"RRLRLL"<<endl;
-        return 0;
-    }else if(n==3&&a[0]==2&&a[1]==4&&a[2]==4){
-        cout<<"RRRLLRRLLL"<<endl;
-        return 0;
+int main() {
+    cin >> n;
+    for (int i=0;i<n;i++) {
+        scanf("%d", &a[i]);
     }
+    string route;
+    int i = 0;
+    while (i || a[i]) {     //不在起点或者还没走完
+        while (a[i] > 0) {
+            a[i]--; i++;
+            route += 'R';
+        }
+        while (i && (a[i-1] > 1 || a[i] == 0)) {
+            i--; a[i]--;
+            route += 'L';
+        }
+    }
+    cout << route << endl;
     return 0;
 }
