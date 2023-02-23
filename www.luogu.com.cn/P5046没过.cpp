@@ -4,39 +4,40 @@ using namespace std;
 
 typedef long long ll;
 
-int read() {
-    int x = 0, w = 1;
-    char ch = 0;
-    while (ch < '0' || ch > '9') { // ch 不是数字时
-        if (ch == '-')
-            w = -1;     // 判断是否为负
-        ch = getchar(); // 继续读入
-    }
-    while (ch >= '0' && ch <= '9') { // ch 是数字时
-        x = x * 10 + (ch - '0');     // 将新读入的数字’加’在 x 的后面
-        // x 是 int 类型，char 类型的 ch 和 ’0’ 会被自动转为其对应的
-        // ASCII 码，相当于将 ch 转化为对应数字
-        // 此处也可以使用 (x<<3)+(x<<1) 的写法来代替 x*10
-        ch = getchar(); // 继续读入
-    }
-    return x * w; // 数字 * 正负号 = 实际数值
+namespace io {
+	const int SIZE = (1 << 21) + 1;
+	char ibuf[SIZE], *iS, *iT, obuf[SIZE], *oS = obuf, *oT = oS + SIZE - 1, c, qu[55]; int f, qr;
+	// getchar
+	#define gc() (iS == iT ? (iT = (iS = ibuf) + fread (ibuf, 1, SIZE, stdin), (iS == iT ? EOF : *iS ++)) : *iS ++)
+	// print the remaining part
+	inline void flush () {
+		fwrite (obuf, 1, oS - obuf, stdout);
+		oS = obuf;
+	}
+	// putchar
+	inline void putc (char x) {
+		*oS ++ = x;
+		if (oS == oT) flush ();
+	}
+	// input a signed integer
+	template <class I>
+	inline void gi (I &x) {
+		for (f = 1, c = gc(); c < '0' || c > '9'; c = gc()) if (c == '-') f = -1;
+		for (x = 0; c <= '9' && c >= '0'; c = gc()) x = x * 10 + (c & 15); x *= f;
+	}
+	// print a signed integer
+	template <class I>
+	inline void print (I x) {
+		if (!x) putc ('0'); if (x < 0) putc ('-'), x = -x;
+		while (x) qu[++ qr] = x % 10 + '0',  x /= 10;
+		while (qr) putc (qu[qr --]);
+	}
+	//no need to call flush at the end manually!
+	struct Flusher_ {~Flusher_(){flush();}}io_flusher_;
 }
-
-void write(ll x) {
-	static short sta[200];
-	short top = 0;
-	while (x) {
-		sta[++top] = x % 10;
-		x /= 10;
-	}
-	if (!top) {
-		putchar('0');
-	}
-	while (top) {
-		putchar('0' + sta[top--]);
-	}
-	putchar('\n');
-}
+using io :: gi;
+using io :: putc;
+using io :: print;
 
 const int N = 1e5 + 9;
 const int NB = 709;
@@ -166,16 +167,22 @@ ll solve(int l, int r) {
 }
 
 int main() {
-    n = read();
-    m = read();
-    for (int i = 1; i <= n; i++)
-        y[i] = x[i] = read(), id[x[i]] = i;
+    gi(n);
+    gi(m);
+    for (int i = 1; i <= n; i++) {
+        gi(y[i]);
+		x[i] = y[i];
+		id[x[i]] = i;
+	}
     init();
     for (int i = 1; i <= m; i++) {
         ll l, r;
-        l = (ll)read() ^ ans;
-        r = (ll)read() ^ ans;
-        write(solve(l, r));
+		ll in1, in2;
+		gi(in1); gi(in2);
+        l = in1 ^ ans;
+        r = in2 ^ ans;
+        print(solve(l, r));
+		putc('\n');
     }
     return 0;
 }
