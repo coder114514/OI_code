@@ -1,4 +1,3 @@
-// luogu-judger-enable-o2
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -47,22 +46,19 @@ int n, m, x[N], y[N], id[N];
 // suf[x]: x到它所在块块尾的区间内的逆序对数量
 // F[i][j]: 块i到块j的这段区间内的逆序对数量
 // cnt[i][j]: 前i块中小于等于j的元素数量
-ll pre[N], suf[N], F[NB][NB], cnt[NB][N], ans;
+int pre[N], suf[N], cnt[NB][N];
+ll F[NB][NB], ans;
 // 分块
 int bel[N], L[NB], R[NB], bSize;
 ///////////////////////BIT
 int bit[N];
 
-void clear_bit() {
-    memset(bit, 0, sizeof(bit));
-}
-
-void add(int p, int d) {
+inline void add(int p, int d) {
     for (int i = p; i <= n; i += i & -i)
         bit[i] += d;
 }
 
-int psq(int p) {
+inline int psq(int p) {
     int sum = 0;
     for (int i = p; i > 0; i -= i & -i)
         sum += bit[i];
@@ -70,9 +66,9 @@ int psq(int p) {
 }
 ////////////////////////////
 int a[N], b[N], la, lb;
-ll merge(int *a, int *b, int la, int lb) {
+inline int merge(int *a, int *b, int la, int lb) {
     int ia = 1, ib = 1;
-    ll res = 0;
+    int res = 0;
     while (ia <= la && ib <= lb) {
         if (a[ia] < b[ib])
             ++ia;
@@ -82,9 +78,9 @@ ll merge(int *a, int *b, int la, int lb) {
     return res;
 }
 ////////////////////////////
-void init() {
+inline void init() {
     /////////分块
-    bSize = n / (sqrt(m) + 1) + 1;
+    // bSize = n / (sqrt(m) + 1) + 1;
 	bSize = 160;
     for (int i = 1; i <= n; i++)
         bel[i] = (i - 1) / bSize + 1;
@@ -97,21 +93,18 @@ void init() {
     for (int i = 1; i <= bel[n]; i++) {
         memcpy(cnt[i], cnt[i-1], sizeof(cnt[0]));
         sort(y + L[i], y + R[i] + 1);
-        ll nrp = 0;
-        clear_bit();
+        int nrp = 0;
         for (int j = L[i]; j <= R[i]; j++) {
             cnt[i][x[j]]++;
             add(x[j], 1);
-            nrp += psq(n) - psq(x[j]);
+            nrp += j - L[i] + 1 - psq(x[j]);
             pre[j] = nrp;
         }
         F[i][i] = nrp;
-        nrp = 0;
-        clear_bit();
-        for (int j = R[i]; j >= L[i]; j--) {
-            add(x[j], 1);
-            nrp += psq(x[j] - 1);
-            suf[j] = nrp;
+        for (int j = L[i]; j <= R[i]; j++) {
+			suf[j] = nrp;
+            add(x[j], -1);
+            nrp -= psq(x[j] - 1);
         }
     }
     /////////////计算cnt
@@ -131,7 +124,7 @@ void init() {
     }
 }
 /////////////////////
-ll solve(int l, int r) {
+inline ll solve(int l, int r) {
 	int bL = bel[l], bR = bel[r];
     if (bL == bR) {
         la = lb = 0;
