@@ -22,6 +22,22 @@ int read() {
     return x * w; // 数字 * 正负号 = 实际数值
 }
 
+void write(ll x) {
+	static short sta[200];
+	short top = 0;
+	while (x) {
+		sta[++top] = x % 10;
+		x /= 10;
+	}
+	if (!top) {
+		putchar('0');
+	}
+	while (top) {
+		putchar('0' + sta[top--]);
+	}
+	putchar('\n');
+}
+
 const int N = 1e5 + 9;
 const int NB = 709;
 
@@ -68,6 +84,7 @@ ll merge(int *a, int *b, int la, int lb) {
 void init() {
     /////////分块
     bSize = n / (sqrt(m) + 1) + 1;
+	bSize = 160;
     for (int i = 1; i <= n; i++)
         bel[i] = (i - 1) / bSize + 1;
     for (int i = 1; i <= bel[n]; i++) {
@@ -158,7 +175,7 @@ int main() {
         ll l, r;
         l = (ll)read() ^ ans;
         r = (ll)read() ^ ans;
-        printf("%lld\n", solve(l, r));
+        write(solve(l, r));
     }
     return 0;
 }
