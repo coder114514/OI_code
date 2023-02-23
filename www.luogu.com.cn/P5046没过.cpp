@@ -39,14 +39,14 @@ using io :: putc;
 using io :: print;
 
 const int N = 1e5 + 9;
-const int NB = 2009;
+const int NB = 709;
 
 int n, m, x[N], y[N], id[N];
 // pre[x]：x到它所在块块首的区间内的逆序对数量
 // suf[x]: x到它所在块块尾的区间内的逆序对数量
 // F[i][j]: 块i到块j的这段区间内的逆序对数量
-// cnt[i][j]: 前i块中小于等于j的元素数量
-int pre[N], suf[N], cnt[NB][N];
+// f[i][j]: a1-aj与第i块中的数形成的逆序对数量
+int pre[N], suf[N], f[NB][N];
 ll F[NB][NB], ans;
 // 分块
 int bel[N], L[NB], R[NB], bSize;
@@ -91,11 +91,9 @@ inline void init() {
     R[bel[n]] = n;
     ////////算pre和suf,块内排序
     for (int i = 1; i <= bel[n]; i++) {
-        memcpy(cnt[i], cnt[i-1], sizeof(cnt[0]));
         sort(y + L[i], y + R[i] + 1);
         int nrp = 0;
         for (int j = L[i]; j <= R[i]; j++) {
-            cnt[i][x[j]]++;
             add(x[j], 1);
             nrp += j - L[i] + 1 - psq(x[j]);
             pre[j] = nrp;
@@ -107,12 +105,20 @@ inline void init() {
             nrp -= psq(x[j] - 1);
         }
     }
-    /////////////计算cnt
-    for (int i = 1; i <= bel[n]; i++) {
-        for (int j = 1; j <= n; j++) {
-            cnt[i][j] += cnt[i][j-1];
-        }
-    }
+	/////////////计算f
+	for (int i = 1; i <= bel[n]; i++) {
+		for (int j = 1; j <= n; j++) {
+			if (j < L[i]) {
+				int idx = lower_bound(y + L[i], y + R[i] + 1, x[j]) - y - L[i];
+				f[i][j] = idx;
+			}
+			else if (j > R[i]) {
+				int idx = lower_bound(y + L[i], y + R[i] + 1, x[j]) - y - L[i];
+				f[i][j] = R[i] - L[i] + 1 - idx;
+			}
+			f[i][j] += f[i][j-1];
+		}
+	}
     /////////////计算F
     for (int k = 1; k < bel[n]; k++) {
         for (int i = 1; i + k <= bel[n]; i++) {
@@ -136,12 +142,9 @@ inline void solve(int l, int r) {
     }
 	else {
         ans = F[bL+1][bR-1] + pre[r] + suf[l];
-        for (int i = l; i <= R[bL]; i++) {
-            ans += cnt[bR-1][x[i]-1] - cnt[bL][x[i]-1];
-        }
-        for (int i = L[bR]; i <= r; i++) {
-            ans += cnt[bR-1][n] - cnt[bL][n] - cnt[bR-1][x[i]] + cnt[bL][x[i]];
-        }
+        for (int i = bL + 1; i <= bR - 1; i++) {
+			ans += f[i][R[bL]] - f[i][l-1] + f[i][r] - f[i][L[bR]-1];
+		}
         la = lb = 0;
         for (int i = L[bL]; i <= R[bL]; i++) {
             if (id[y[i]] >= l)
@@ -172,6 +175,7 @@ int main() {
 		gi(in1); gi(in2);
         l = in1 ^ ans;
         r = in2 ^ ans;
+		assert(l < r && 0 < l && r <= n);
         solve(l, r);
     }
     return 0;
