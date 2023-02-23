@@ -1,203 +1,165 @@
 // luogu-judger-enable-o2
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 
 typedef long long ll;
 
 int read() {
-  int x = 0, w = 1;
-  char ch = 0;
-  while (ch < '0' || ch > '9') {  // ch ²»ÊÇÊı×ÖÊ±
-    if (ch == '-') w = -1;        // ÅĞ¶ÏÊÇ·ñÎª¸º
-    ch = getchar();               // ¼ÌĞø¶ÁÈë
-  }
-  while (ch >= '0' && ch <= '9') {  // ch ÊÇÊı×ÖÊ±
-    x = x * 10 + (ch - '0');  // ½«ĞÂ¶ÁÈëµÄÊı×Ö¡¯¼Ó¡¯ÔÚ x µÄºóÃæ
-    // x ÊÇ int ÀàĞÍ£¬char ÀàĞÍµÄ ch ºÍ ¡¯0¡¯ »á±»×Ô¶¯×ªÎªÆä¶ÔÓ¦µÄ
-    // ASCII Âë£¬Ïàµ±ÓÚ½« ch ×ª»¯Îª¶ÔÓ¦Êı×Ö
-    // ´Ë´¦Ò²¿ÉÒÔÊ¹ÓÃ (x<<3)+(x<<1) µÄĞ´·¨À´´úÌæ x*10
-    ch = getchar();  // ¼ÌĞø¶ÁÈë
-  }
-  return x * w;  // Êı×Ö * Õı¸ººÅ = Êµ¼ÊÊıÖµ
+    int x = 0, w = 1;
+    char ch = 0;
+    while (ch < '0' || ch > '9') { // ch ä¸æ˜¯æ•°å­—æ—¶
+        if (ch == '-')
+            w = -1;     // åˆ¤æ–­æ˜¯å¦ä¸ºè´Ÿ
+        ch = getchar(); // ç»§ç»­è¯»å…¥
+    }
+    while (ch >= '0' && ch <= '9') { // ch æ˜¯æ•°å­—æ—¶
+        x = x * 10 + (ch - '0');     // å°†æ–°è¯»å…¥çš„æ•°å­—â€™åŠ â€™åœ¨ x çš„åé¢
+        // x æ˜¯ int ç±»å‹ï¼Œchar ç±»å‹çš„ ch å’Œ â€™0â€™ ä¼šè¢«è‡ªåŠ¨è½¬ä¸ºå…¶å¯¹åº”çš„
+        // ASCII ç ï¼Œç›¸å½“äºå°† ch è½¬åŒ–ä¸ºå¯¹åº”æ•°å­—
+        // æ­¤å¤„ä¹Ÿå¯ä»¥ä½¿ç”¨ (x<<3)+(x<<1) çš„å†™æ³•æ¥ä»£æ›¿ x*10
+        ch = getchar(); // ç»§ç»­è¯»å…¥
+    }
+    return x * w; // æ•°å­— * æ­£è´Ÿå· = å®é™…æ•°å€¼
 }
 
-inline void write(ll x) {
-  static int sta[100];
-  int top = 0;
-  do {
-    sta[top++] = x % 10, x /= 10;
-  } while (x);
-  while (top) putchar(sta[--top] + 48);  // 48 ÊÇ '0'
-}
+const int N = 1e5 + 9;
+const int NB = 709;
 
-const int N=1e5+9,NB=709;
-
-int n,m,x[N],y[N],id[N];
-//pre[x]£ºxµ½ËüËùÔÚ¿é¿éÊ×µÄÇø¼äÄÚµÄÄæĞò¶ÔÊıÁ¿
-//suf[x]: xµ½ËüËùÔÚ¿é¿éÎ²µÄÇø¼äÄÚµÄÄæĞò¶ÔÊıÁ¿
-//F[i][j]: ¿éiµ½¿éjµÄÕâ¶ÎÇø¼äÄÚµÄÄæĞò¶ÔÊıÁ¿
-//cnt[i][j]: Ç°i¿éÖĞĞ¡ÓÚµÈÓÚjµÄÔªËØÊıÁ¿ 
-ll pre[N],suf[N],F[NB][NB],cnt[NB][N],ans;
-//·Ö¿é 
-int bel[N],L[NB],R[NB],bSize;
+int n, m, x[N], y[N], id[N];
+// pre[x]ï¼šxåˆ°å®ƒæ‰€åœ¨å—å—é¦–çš„åŒºé—´å†…çš„é€†åºå¯¹æ•°é‡
+// suf[x]: xåˆ°å®ƒæ‰€åœ¨å—å—å°¾çš„åŒºé—´å†…çš„é€†åºå¯¹æ•°é‡
+// F[i][j]: å—iåˆ°å—jçš„è¿™æ®µåŒºé—´å†…çš„é€†åºå¯¹æ•°é‡
+// cnt[i][j]: å‰iå—ä¸­å°äºç­‰äºjçš„å…ƒç´ æ•°é‡
+ll pre[N], suf[N], F[NB][NB], cnt[NB][N], ans;
+// åˆ†å—
+int bel[N], L[NB], R[NB], bSize;
 ///////////////////////BIT
 int bit[N];
 
-void clear_bit()
-{
-	memset(bit,0,sizeof(bit));
+void clear_bit() {
+    memset(bit, 0, sizeof(bit));
 }
 
-void add(int p,int d)
-{
-	for(int i=p;i<=n;i+=i&-i)bit[i]+=d;
+void add(int p, int d) {
+    for (int i = p; i <= n; i += i & -i)
+        bit[i] += d;
 }
 
-int psq(int p)
-{
-	int sum=0;
-	for(int i=p;i>0;i-=i&-i)sum+=bit[i];
-	return sum;
+int psq(int p) {
+    int sum = 0;
+    for (int i = p; i > 0; i -= i & -i)
+        sum += bit[i];
+    return sum;
 }
 ////////////////////////////
-int a[N],b[N],la,lb;
-ll merge(int*a,int*b,int la,int lb)
-{
-	ll ia=1,ib=1,res=0;
-	while(ia<=la&&ib<=lb)
-	{
-		if(a[ia]<b[ib])++ia;
-		else res+=la-ia+1,++ib;
-	}
-	return res;
+int a[N], b[N], la, lb;
+ll merge(int *a, int *b, int la, int lb) {
+    int ia = 1, ib = 1;
+    ll res = 0;
+    while (ia <= la && ib <= lb) {
+        if (a[ia] < b[ib])
+            ++ia;
+        else
+            res += la - ia + 1, ++ib;
+    }
+    return res;
 }
 ////////////////////////////
-void init()
-{
-	/////////·Ö¿é 
-//	bSize=n/(sqrt(m)+1)+1;
-	bSize=350;
-	for(int i=1;i<=n;i++)bel[i]=(i-1)/bSize+1;
-	for(int i=1;i<=bel[n];i++)
-	{
-		L[i]=R[i-1]+1;
-		R[i]=i*bSize;
-	}
-	R[bel[n]]=n;
-	////////ËãpreºÍsuf,¿éÄÚÅÅĞò 
-	for(int i=1;i<=bel[n];i++)
-	{
-		memcpy(cnt[i],cnt[i-1],sizeof(cnt[0]));
-		sort(y+L[i],y+R[i]+1);
-		ll nrp=0;
-		clear_bit();
-		for(int j=L[i];j<=R[i];j++)
-		{
-			cnt[i][x[j]]++;
-			add(x[j],1);
-			nrp+=psq(n)-psq(x[j]);
-			pre[j]=nrp;
-		}
-		F[i][i]=nrp;
-		nrp=0;
-		clear_bit();
-		for(int j=R[i];j>=L[i];j--)
-		{
-			add(x[j],1);
-			nrp+=psq(x[j]-1);
-			suf[j]=nrp;
-		}
-//		cout<<i<<","<<bel[n]<<endl;
-	}
-//	for(int i=1;i<=n;i++)
-//	{
-//		cout<<L[bel[i]]<<","<<i<<","<<pre[i]<<endl;
-//	}
-//	for(int i=1;i<=n;i++)
-//	{
-//		cout<<i<<","<<R[bel[i]]<<","<<suf[i]<<endl;
-//	}
-//	cout<<"MARK"<<endl;
-	/////////////¼ÆËãcnt 
-	for(int i=1;i<=bel[n];i++)
-	{
-		for(int j=1;j<=n;j++)
-		{
-			cnt[i][j]+=cnt[i][j-1];
-		}
-	}
-	/////////////¼ÆËãF
-	for(int k=1;k<bel[n];k++)
-	{
-		for(int i=1;i<=bel[n];i++)
-		{
-			if(i+k>bel[n])break;
-			int j=i+k;
-			F[i][j]=F[i+1][j]+F[i][j-1]-F[i+1][j-1]+merge(y+L[i]-1,y+L[j]-1,R[i]-L[i]+1,R[j]-L[j]+1);
-		}
-	}
-//	for(int i=1;i<=bel[n];i++)
-//	{
-//		for(int j=1;j<=bel[n];j++)
-//		{
-//			cout<<i<<","<<j<<","<<F[i][j]<<endl;
-//		}
-//	}
+void init() {
+    /////////åˆ†å—
+    bSize = n / (sqrt(m) + 1) + 1;
+    for (int i = 1; i <= n; i++)
+        bel[i] = (i - 1) / bSize + 1;
+    for (int i = 1; i <= bel[n]; i++) {
+        L[i] = R[i - 1] + 1;
+        R[i] = i * bSize;
+    }
+    R[bel[n]] = n;
+    ////////ç®—preå’Œsuf,å—å†…æ’åº
+    for (int i = 1; i <= bel[n]; i++) {
+        memcpy(cnt[i], cnt[i - 1], sizeof(cnt[0]));
+        sort(y + L[i], y + R[i] + 1);
+        ll nrp = 0;
+        clear_bit();
+        for (int j = L[i]; j <= R[i]; j++) {
+            cnt[i][x[j]]++;
+            add(x[j], 1);
+            nrp += psq(n) - psq(x[j]);
+            pre[j] = nrp;
+        }
+        F[i][i] = nrp;
+        nrp = 0;
+        clear_bit();
+        for (int j = R[i]; j >= L[i]; j--) {
+            add(x[j], 1);
+            nrp += psq(x[j] - 1);
+            suf[j] = nrp;
+        }
+    }
+    /////////////è®¡ç®—cnt
+    for (int i = 1; i <= bel[n]; i++) {
+        for (int j = 1; j <= n; j++) {
+            cnt[i][j] += cnt[i][j - 1];
+        }
+    }
+    /////////////è®¡ç®—F
+    for (int k = 1; k < bel[n]; k++) {
+        for (int i = 1; i <= bel[n]; i++) {
+            if (i + k > bel[n])
+                break;
+            int j = i + k;
+            F[i][j] = F[i + 1][j] + F[i][j - 1] - F[i + 1][j - 1] + merge(y + L[i] - 1, y + L[j] - 1, R[i] - L[i] + 1, R[j] - L[j] + 1);
+        }
+    }
 }
 /////////////////////
-ll solve(int l,int r)
-{
-	if(bel[l]==bel[r])
-	{
-		la=lb=0;
-		for(int i=L[bel[l]];i<=R[bel[l]];i++)
-		{
-			if(id[y[i]]>=l&&id[y[i]]<=r)b[++lb]=y[i];
-			else if(id[y[i]]<l)a[++la]=y[i];
-		}
-		ans=pre[r]-(l==L[bel[l]]?0:pre[l-1])-merge(a,b,la,lb);
-		return ans;
-	}
-	else
-	{
-		ans=F[bel[l]+1][bel[r]-1]+pre[r]+suf[l];
-//		cout<<ans<<endl;
-		for(int i=l;bel[i]==bel[l];i++)//Í³¼Æx[i]>¿éÖĞµÄ 
-		{
-			ans+=cnt[bel[r]-1][x[i]-1]-cnt[bel[l]][x[i]-1];
-		}
-//		cout<<ans<<endl;
-		for(int i=r;bel[i]==bel[r];i--)//Í³¼Æx[i]<¿éÖĞµÄ 
-		{
-			ans+=cnt[bel[r]-1][n]-cnt[bel[l]][n]-cnt[bel[r]-1][x[i]]+cnt[bel[l]][x[i]];
-		}
-//		cout<<ans<<endl;
-		la=lb=0;
-		for(int i=L[bel[l]];i<=R[bel[l]];i++)
-		{
-			if(id[y[i]]>=l)a[++la]=y[i];
-		}
-		for(int i=L[bel[r]];i<=R[bel[r]];i++)
-		{
-			if(id[y[i]]<=r)b[++lb]=y[i];
-		}
-		ans+=merge(a,b,la,lb);
-		return ans;
-	}
+ll solve(int l, int r) {
+    if (bel[l] == bel[r]) {
+        la = lb = 0;
+        for (int i = L[bel[l]]; i <= R[bel[l]]; i++) {
+            if (id[y[i]] >= l && id[y[i]] <= r)
+                b[++lb] = y[i];
+            else if (id[y[i]] < l)
+                a[++la] = y[i];
+        }
+        ans = pre[r] - (l == L[bel[l]] ? 0 : pre[l - 1]) - merge(a, b, la, lb);
+        return ans;
+    }
+	else {
+        ans = F[bel[l] + 1][bel[r] - 1] + pre[r] + suf[l];
+        for (int i = l; bel[i] == bel[l]; i++) // ç»Ÿè®¡x[i]>å—ä¸­çš„
+        {
+            ans += cnt[bel[r] - 1][x[i] - 1] - cnt[bel[l]][x[i] - 1];
+        }
+        for (int i = r; bel[i] == bel[r]; i--) // ç»Ÿè®¡x[i]<å—ä¸­çš„
+        {
+            ans += cnt[bel[r] - 1][n] - cnt[bel[l]][n] - cnt[bel[r] - 1][x[i]] + cnt[bel[l]][x[i]];
+        }
+        la = lb = 0;
+        for (int i = L[bel[l]]; i <= R[bel[l]]; i++) {
+            if (id[y[i]] >= l)
+                a[++la] = y[i];
+        }
+        for (int i = L[bel[r]]; i <= R[bel[r]]; i++) {
+            if (id[y[i]] <= r)
+                b[++lb] = y[i];
+        }
+        ans += merge(a, b, la, lb);
+        return ans;
+    }
 }
 
-int main()
-{
-	n=read();
-	m=read();
-	for(int i=1;i<=n;i++)y[i]=x[i]=read(),id[x[i]]=i;
-	init();
-	for(int i=1;i<=m;i++)
-	{
-		ll l,r;
-		l=read()^ans;
-		r=read()^ans;
-		printf("%lld\n",solve(l,r));
-	}
-	return 0; 
+int main() {
+    n = read();
+    m = read();
+    for (int i = 1; i <= n; i++)
+        y[i] = x[i] = read(), id[x[i]] = i;
+    init();
+    for (int i = 1; i <= m; i++) {
+        ll l, r;
+        l = read() ^ ans;
+        r = read() ^ ans;
+        printf("%lld\n", solve(l, r));
+    }
+    return 0;
 }
