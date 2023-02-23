@@ -77,7 +77,7 @@ void init() {
     R[bel[n]] = n;
     ////////算pre和suf,块内排序
     for (int i = 1; i <= bel[n]; i++) {
-        memcpy(cnt[i], cnt[i - 1], sizeof(cnt[0]));
+        memcpy(cnt[i], cnt[i-1], sizeof(cnt[0]));
         sort(y + L[i], y + R[i] + 1);
         ll nrp = 0;
         clear_bit();
@@ -99,7 +99,7 @@ void init() {
     /////////////计算cnt
     for (int i = 1; i <= bel[n]; i++) {
         for (int j = 1; j <= n; j++) {
-            cnt[i][j] += cnt[i][j - 1];
+            cnt[i][j] += cnt[i][j-1];
         }
     }
     /////////////计算F
@@ -108,39 +108,38 @@ void init() {
             if (i + k > bel[n])
                 break;
             int j = i + k;
-            F[i][j] = F[i + 1][j] + F[i][j - 1] - F[i + 1][j - 1] + merge(y + L[i] - 1, y + L[j] - 1, R[i] - L[i] + 1, R[j] - L[j] + 1);
+            F[i][j] = F[i+1][j] + F[i][j-1] - F[i+1][j-1] + merge(y+L[i]-1, y+L[j]-1, R[i]-L[i]+1, R[j]-L[j]+1);
         }
     }
 }
 /////////////////////
 ll solve(int l, int r) {
-    if (bel[l] == bel[r]) {
+	int bL = bel[l], bR = bel[r];
+    if (bL == bR) {
         la = lb = 0;
-        for (int i = L[bel[l]]; i <= R[bel[l]]; i++) {
+        for (int i = L[bL]; i <= R[bL]; i++) {
             if (id[y[i]] >= l && id[y[i]] <= r)
                 b[++lb] = y[i];
             else if (id[y[i]] < l)
                 a[++la] = y[i];
         }
-        ans = pre[r] - (l == L[bel[l]] ? 0 : pre[l - 1]) - merge(a, b, la, lb);
+        ans = pre[r] - (l == L[bL] ? 0 : pre[l-1]) - merge(a, b, la, lb);
         return ans;
     }
 	else {
-        ans = F[bel[l] + 1][bel[r] - 1] + pre[r] + suf[l];
-        for (int i = l; bel[i] == bel[l]; i++) // 统计x[i]>块中的
-        {
-            ans += cnt[bel[r] - 1][x[i] - 1] - cnt[bel[l]][x[i] - 1];
+        ans = F[bL+1][bR-1] + pre[r] + suf[l];
+        for (int i = l; i <= R[bL]; i++) {
+            ans += cnt[bR-1][x[i]-1] - cnt[bL][x[i]-1];
         }
-        for (int i = r; bel[i] == bel[r]; i--) // 统计x[i]<块中的
-        {
-            ans += cnt[bel[r] - 1][n] - cnt[bel[l]][n] - cnt[bel[r] - 1][x[i]] + cnt[bel[l]][x[i]];
+        for (int i = L[bR]; i <= r; i++) {
+            ans += cnt[bR-1][n] - cnt[bL][n] - cnt[bR-1][x[i]] + cnt[bL][x[i]];
         }
         la = lb = 0;
-        for (int i = L[bel[l]]; i <= R[bel[l]]; i++) {
+        for (int i = L[bL]; i <= R[bL]; i++) {
             if (id[y[i]] >= l)
                 a[++la] = y[i];
         }
-        for (int i = L[bel[r]]; i <= R[bel[r]]; i++) {
+        for (int i = L[bR]; i <= R[bR]; i++) {
             if (id[y[i]] <= r)
                 b[++lb] = y[i];
         }
@@ -157,8 +156,8 @@ int main() {
     init();
     for (int i = 1; i <= m; i++) {
         ll l, r;
-        l = read() ^ ans;
-        r = read() ^ ans;
+        l = (ll)read() ^ ans;
+        r = (ll)read() ^ ans;
         printf("%lld\n", solve(l, r));
     }
     return 0;
