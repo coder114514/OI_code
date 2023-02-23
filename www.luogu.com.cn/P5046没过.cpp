@@ -39,7 +39,7 @@ using io :: putc;
 using io :: print;
 
 const int N = 1e5 + 9;
-const int NB = 709;
+const int NB = 2009;
 
 int n, m, x[N], y[N], id[N];
 // pre[x]：x到它所在块块首的区间内的逆序对数量
@@ -115,16 +115,14 @@ inline void init() {
     }
     /////////////计算F
     for (int k = 1; k < bel[n]; k++) {
-        for (int i = 1; i <= bel[n]; i++) {
-            if (i + k > bel[n])
-                break;
+        for (int i = 1; i + k <= bel[n]; i++) {
             int j = i + k;
             F[i][j] = F[i+1][j] + F[i][j-1] - F[i+1][j-1] + merge(y+L[i]-1, y+L[j]-1, R[i]-L[i]+1, R[j]-L[j]+1);
         }
     }
 }
 /////////////////////
-inline ll solve(int l, int r) {
+inline void solve(int l, int r) {
 	int bL = bel[l], bR = bel[r];
     if (bL == bR) {
         la = lb = 0;
@@ -135,7 +133,6 @@ inline ll solve(int l, int r) {
                 a[++la] = y[i];
         }
         ans = pre[r] - (l == L[bL] ? 0 : pre[l-1]) - merge(a, b, la, lb);
-        return ans;
     }
 	else {
         ans = F[bL+1][bR-1] + pre[r] + suf[l];
@@ -155,8 +152,9 @@ inline ll solve(int l, int r) {
                 b[++lb] = y[i];
         }
         ans += merge(a, b, la, lb);
-        return ans;
     }
+	print(ans);
+	putc('\n');
 }
 
 int main() {
@@ -174,8 +172,7 @@ int main() {
 		gi(in1); gi(in2);
         l = in1 ^ ans;
         r = in2 ^ ans;
-        print(solve(l, r));
-		putc('\n');
+        solve(l, r);
     }
     return 0;
 }
