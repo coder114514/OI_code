@@ -80,8 +80,7 @@ inline int merge(int *a, int *b, int la, int lb) {
 ////////////////////////////
 inline void init() {
     /////////分块
-    // bSize = n / (sqrt(m) + 1) + 1;
-	bSize = 160;
+	bSize = 370;
     for (int i = 1; i <= n; i++)
         bel[i] = (i - 1) / bSize + 1;
     for (int i = 1; i <= bel[n]; i++) {
@@ -107,23 +106,25 @@ inline void init() {
     }
 	/////////////计算f
 	for (int i = 1; i <= bel[n]; i++) {
+		int k = L[i];
 		for (int j = 1; j <= n; j++) {
-			if (j < L[i]) {
-				int idx = lower_bound(y + L[i], y + R[i] + 1, x[j]) - y - L[i];
-				f[i][j] = idx;
+			while (k <= R[i] && y[k] < j) ++k;
+			if (id[j] < L[i]) {
+				f[i][id[j]] = k - L[i];
 			}
-			else if (j > R[i]) {
-				int idx = lower_bound(y + L[i], y + R[i] + 1, x[j]) - y - L[i];
-				f[i][j] = R[i] - L[i] + 1 - idx;
+			else if (id[j] > R[i]) {
+				f[i][id[j]] = R[i] - k + 1;
 			}
+		}
+		for (int j = 1; j <= n; j++) {
 			f[i][j] += f[i][j-1];
 		}
 	}
     /////////////计算F
     for (int k = 1; k < bel[n]; k++) {
         for (int i = 1; i + k <= bel[n]; i++) {
-            int j = i + k;
-            F[i][j] = F[i+1][j] + F[i][j-1] - F[i+1][j-1] + merge(y+L[i]-1, y+L[j]-1, R[i]-L[i]+1, R[j]-L[j]+1);
+            const int j = i + k;
+            F[i][j] = F[i+1][j] + F[i][j-1] - F[i+1][j-1] + f[j][R[i]] - f[j][L[i]-1];
         }
     }
 }
@@ -175,7 +176,6 @@ int main() {
 		gi(in1); gi(in2);
         l = in1 ^ ans;
         r = in2 ^ ans;
-		assert(l < r && 0 < l && r <= n);
         solve(l, r);
     }
     return 0;
