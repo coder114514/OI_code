@@ -1,4 +1,5 @@
-//与P2619重复 数据似乎有问题
+// wqs二分经典题目
+
 #include <bits/stdc++.h>
 using namespace std;
 
