@@ -61,7 +61,7 @@ void update_mnmx(int u, int& x, int& y) {
 }
 
 // d[x]变成z
-void update_d(int u, int& x, int& z) {
+void update_d(int u, int& x, const int& z) {
     if (tr[u].l == tr[u].r) {
         tr[u].gcd = z;
         return;
@@ -149,10 +149,8 @@ int main() {
             }
             rmap[a[x]].erase(x);
             ///////////////////////
-            d[x] = abs(a[x] - a[x - 1]);
-            d[x + 1] = abs(a[x + 1] - a[x]);
-            update_d(1, x, d[x]);
-            update_d(1, x, d[x + 1]);
+            update_d(1, x, abs(y - a[x - 1]));
+            update_d(1, x, abs(a[x + 1] - y));
             ///////////////////////
             if (!rmap.count(y)) { // 值域上的新值
                 rmap[y] = set<int>();
@@ -165,20 +163,17 @@ int main() {
                 if (it == rmap[y].begin()) { // 无前驱
                     pre[*it] = x;
                     pre[x] = 0;
-                    update_pre(1, x);
-                    update_pre(1, *it);
                 }
                 else if (it == rmap[y].end()) { // 无后继
                     --it;
                     pre[x] = *it;
-                    update_pre(1, x);
                 }
-                else {
+                else { // 有前驱有后继
                     pre[x] = pre[*it];
                     pre[*it] = x;
-                    update_pre(1, x);
-                    update_pre(1, *it);
                 }
+                update_pre(1, x);
+                if (it != rmap[y].end()) update_pre(1, *it);
                 rmap[y].insert(x);
             }
             a[x] = y;
