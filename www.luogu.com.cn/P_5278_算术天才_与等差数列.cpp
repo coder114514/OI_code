@@ -5,16 +5,11 @@ using namespace std;
 // 差分数组 [l, r] gcd 为 k 的倍数，线段树维护区间gcd // 似乎gcd只可能是k
 // 没有重复数字，维护前驱，用set找前驱，用线段树维护区间最大前驱
 
-int gcd(int a, int b) {
-    while (b) {
-        int tmp = a % b;
-        a = b;
-        b = tmp;
-    }
-    return a;
+inline int gcd(int a, int b) {
+    return (b ? gcd(b, a % b) : a);
 }
 
-const int N = 3e5 + 10;
+const int N = 3e5 + 1;
 
 #define ls(u) (u * 2)
 #define rs(u) (u * 2 + 1)
@@ -26,25 +21,27 @@ struct Seg {
     int gcd;
 } tr[N * 4];
 
-int a[N], d[N], pre[N];
+int a[N], pre[N];
+
+Seg merge(const Seg& a, const Seg& b) {
+    Seg res;
+    res.l = a.l, res.r = b.r;
+    res.mx = max(a.mx, b.mx);
+    res.mn = min(a.mn, b.mn);
+    res.pre = max(a.pre, b.pre);
+    res.gcd = gcd(a.gcd, b.gcd);
+    return res;
+}
 
 void build(int u, int l, int r) {
-    tr[u].l = l;
-    tr[u].r = r;
     if (l == r) {
-        tr[u].mx = a[l];
-        tr[u].mn = a[l];
-        tr[u].pre = pre[l];
-        tr[u].gcd = d[l];
+        tr[u] = Seg{l, r, a[l], a[l], pre[l], abs(a[l] - a[l - 1])};
         return;
     }
     int mid = l + (r - l) / 2;
     build(ls(u), l, mid);
     build(rs(u), mid + 1, r);
-    tr[u].mx = max(tr[ls(u)].mx, tr[rs(u)].mx);
-    tr[u].mn = min(tr[ls(u)].mn, tr[rs(u)].mn);
-    tr[u].pre = max(tr[ls(u)].pre, tr[rs(u)].pre);
-    tr[u].gcd = gcd(tr[ls(u)].gcd, tr[rs(u)].gcd);
+    tr[u] = merge(tr[ls(u)], tr[rs(u)]);
 }
 
 // a[x]变成y
@@ -82,25 +79,17 @@ void update_pre(int u, const int& x) {
     tr[u].pre = max(tr[ls(u)].pre, tr[rs(u)].pre);
 }
 
-struct Res {
-    int mx, mn;
-    int pre;
-    int gcd;
-};
-
-Res query(int u, const int& l, int& r) {
+Seg query(int u, const int& l, int& r) {
     if (r < tr[u].l || l > tr[u].r) {
-        Res res{0, (int)1e9, 0, 0};
+        Seg res{0, 0, 0, (int)1e9, 0, 0};
         return res;
     }
     if (l <= tr[u].l && tr[u].r <= r) {
-        Res res{tr[u].mx, tr[u].mn, tr[u].pre, tr[u].gcd};
-        return res;
+        return tr[u];
     }
-    Res resL = query(ls(u), l, r);
-    Res resR = query(rs(u), l, r);
-    Res res = Res{max(resL.mx, resR.mx), min(resL.mn, resR.mn), max(resL.pre, resR.pre), gcd(resL.gcd, resR.gcd)};
-    return res;
+    Seg resL = query(ls(u), l, r);
+    Seg resR = query(rs(u), l, r);
+    return merge(resL, resR);
 }
 
 int n, m, ans;
@@ -110,29 +99,15 @@ int main() {
     scanf("%d%d", &n, &m);
     for (int i = 1; i <= n; i++) {
         scanf("%d", &a[i]);
-        d[i] = abs(a[i] - a[i - 1]);
         if (!rmap.count(a[i])) {
             rmap[a[i]] = set<int>();
         }
+        else {
+            auto it = rmap[a[i]].end();
+            pre[i] = *--it;
+        }
         rmap[a[i]].insert(i);
     }
-    for (int i = 1; i <= n; i++) {
-        auto it = rmap[a[i]].upper_bound(i);
-        if (it != rmap[a[i]].end()) {
-            pre[*it] = i;
-        }
-    }
-    // for (auto e1 : rmap) {
-    //     cout << e1.first << ": ";
-    //     for (auto e2 : e1.second) {
-    //         cout << e2 << " ";
-    //     }
-    //     cout << endl;
-    // }
-    // for (int i = 1; i <= n; i++) cout << pre[i] << " ";
-    // cout << endl;
-    // for (int i = 1; i <= n; i++) cout << nxt[i] << " ";
-    // cout << endl;
     build(1, 1, n);
     for (int iQ = 1; iQ <= m; iQ++) {
         int op;
@@ -190,9 +165,9 @@ int main() {
                 ans++;
                 continue;
             }
-            Res res = query(1, l, r);
-            Res res2 = query(1, l + 1, r);
-            if (res.mx - res.mn == 1LL * k * (r - l) && (res2.gcd == k || res2.gcd == 0) && (res.pre < l || k == 0)) { // 特判 k == 0
+            Seg res = query(1, l, r);
+            Seg res_gcd = query(1, l + 1, r);
+            if (res.mx - res.mn == 1LL * k * (r - l) && (res.pre < l || k == 0) && (res_gcd.gcd == k || k == 0)) { // 特判 k == 0
                 printf("Yes\n");
                 ans++;
             }
