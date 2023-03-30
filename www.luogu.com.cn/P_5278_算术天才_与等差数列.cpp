@@ -48,29 +48,38 @@ void build(int u, int l, int r) {
 }
 
 // a[x]变成y
-void change_a(int u, int& x, int& y) {
+void update_mnmx(int u, int& x, int& y) {
     if (tr[u].l == tr[u].r) {
         tr[u].mx = y;
         tr[u].mn = y;
-        tr[u].pre = pre[x];
         return;
     }
-    if (x <= tr[ls(u)].r) change_a(ls(u), x, y);
-    else change_a(rs(u), x, y);
+    if (x <= tr[ls(u)].r) update_mnmx(ls(u), x, y);
+    else update_mnmx(rs(u), x, y);
     tr[u].mx = max(tr[ls(u)].mx, tr[rs(u)].mx);
     tr[u].mn = min(tr[ls(u)].mn, tr[rs(u)].mn);
-    tr[u].pre = max(tr[ls(u)].pre, tr[rs(u)].pre);
 }
 
 // d[x]变成z
-void change_d(int u, int& x, int& z) {
+void update_d(int u, int& x, int& z) {
     if (tr[u].l == tr[u].r) {
         tr[u].gcd = z;
         return;
     }
-    if (x <= tr[ls(u)].r) change_d(ls(u), x, z);
-    else change_d(rs(u), x, z);
+    if (x <= tr[ls(u)].r) update_d(ls(u), x, z);
+    else update_d(rs(u), x, z);
     tr[u].gcd = gcd(tr[ls(u)].gcd, tr[rs(u)].gcd);
+}
+
+// 更新 pre[x]
+void update_pre(int u, const int& x) {
+    if (tr[u].l == tr[u].r) {
+        tr[u].pre = pre[x];
+        return;
+    }
+    if (x <= tr[ls(u)].r) update_pre(ls(u), x);
+    else update_pre(rs(u), x);
+    tr[u].pre = max(tr[ls(u)].pre, tr[rs(u)].pre);
 }
 
 struct Res {
@@ -134,18 +143,46 @@ int main() {
             x ^= ans;
             y ^= ans;
             auto it = rmap[a[x]].upper_bound(x);
-            pre[*it] = pre[x];
+            if (it != rmap[a[x]].end()) { // 更新后继
+                pre[*it] = pre[x];
+                update_pre(1, *it);
+            }
             rmap[a[x]].erase(x);
-            a[x] = y;
+            ///////////////////////
             d[x] = abs(a[x] - a[x - 1]);
             d[x + 1] = abs(a[x + 1] - a[x]);
-            it = rmap[y].upper_bound(x);
-            pre[x] = pre[*it];
-            pre[*it] = x;
-            rmap[y].insert(x);
-            change_a(1, x, y);
-            change_d(1, x, d[x]);
-            change_d(1, x, d[x + 1]);
+            update_d(1, x, d[x]);
+            update_d(1, x, d[x + 1]);
+            ///////////////////////
+            if (!rmap.count(y)) { // 值域上的新值
+                rmap[y] = set<int>();
+                rmap[y].insert(x);
+                pre[x] = 0;
+                update_pre(1, x);
+            }
+            else { // 已经有过这个值了
+                it = rmap[y].upper_bound(x); // 新后继
+                if (it == rmap[y].begin()) { // 无前驱
+                    pre[*it] = x;
+                    pre[x] = 0;
+                    update_pre(1, x);
+                    update_pre(1, *it);
+                }
+                else if (it == rmap[y].end()) { // 无后继
+                    --it;
+                    pre[x] = *it;
+                    update_pre(1, x);
+                }
+                else {
+                    pre[x] = pre[*it];
+                    pre[*it] = x;
+                    update_pre(1, x);
+                    update_pre(1, *it);
+                }
+                rmap[y].insert(x);
+            }
+            a[x] = y;
+            update_mnmx(1, x, y);
         }
         else {
             int l, r, k;
