@@ -61,7 +61,7 @@ void update_mnmx(int u, int& x, int& y) {
 }
 
 // d[x]变成z
-void update_d(int u, int& x, const int& z) {
+void update_d(int u, const int& x, const int& z) {
     if (tr[u].l == tr[u].r) {
         tr[u].gcd = z;
         return;
@@ -150,7 +150,7 @@ int main() {
             rmap[a[x]].erase(x);
             ///////////////////////
             update_d(1, x, abs(y - a[x - 1]));
-            update_d(1, x, abs(a[x + 1] - y));
+            update_d(1, x + 1, abs(a[x + 1] - y));
             ///////////////////////
             if (!rmap.count(y)) { // 值域上的新值
                 rmap[y] = set<int>();
