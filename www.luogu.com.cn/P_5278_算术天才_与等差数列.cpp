@@ -154,7 +154,7 @@ int main() {
             r ^= ans;
             k ^= ans;
             Res res = query(1, l, r);
-            if (res.mx - res.mn == 1LL * k * (r - l) && res.gcd == k && res.pre < l) {
+            if (res.mx - res.mn == 1LL * k * (r - l) && (res.gcd == k || res.gcd == 0) && (res.pre < l || k == 0)) { // 特判 k == 0
                 printf("Yes\n");
                 ans++;
             }
