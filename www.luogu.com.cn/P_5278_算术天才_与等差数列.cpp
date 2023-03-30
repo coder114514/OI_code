@@ -88,7 +88,7 @@ struct Res {
     int gcd;
 };
 
-Res query(int u, int& l, int& r) {
+Res query(int u, const int& l, int& r) {
     if (r < tr[u].l || l > tr[u].r) {
         Res res{0, (int)1e9, 0, 0};
         return res;
@@ -185,8 +185,14 @@ int main() {
             l ^= ans;
             r ^= ans;
             k ^= ans;
+            if (l == r) {
+                printf("Yes\n");
+                ans++;
+                continue;
+            }
             Res res = query(1, l, r);
-            if (res.mx - res.mn == 1LL * k * (r - l) && (res.gcd == k || res.gcd == 0) && (res.pre < l || k == 0)) { // 特判 k == 0
+            Res res2 = query(1, l + 1, r);
+            if (res.mx - res.mn == 1LL * k * (r - l) && (res2.gcd == k || res2.gcd == 0) && (res.pre < l || k == 0)) { // 特判 k == 0
                 printf("Yes\n");
                 ans++;
             }
